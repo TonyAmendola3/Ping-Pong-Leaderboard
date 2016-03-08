@@ -1,0 +1,16 @@
+extends ../layout
+
+block content
+	h1.
+		#{title}
+	form#formAddWinner(name='addwinner', method='post', action='/users') 
+		p Username:
+			input#inputUsername(type='text', placeholder='ex. Anthony Zeus Amendola', name='username')
+		p Password:
+			input#inputPassword(type='text', placeholder='ex. Anthony Zeus Amendola', name='password')
+		p Wins:
+			input#inputWins(type='number', placeholder='ex. 1', name='wins')
+		p Losses:
+			input#inputLosses(type='number', placeholder='ex. 0', name='losses')
+		p
+			button#btnSubmit(type='submit') submit

@@ -1,0 +1,17 @@
+extends ../layout
+
+block content
+	h1.
+		Winner ID #{winner._id}
+	form(action='/winners/#{winner._id}/edit', method='post', name='updatewinner', enctype='application/x-www-form-urlencoded')
+		p Username:
+			input#inputUsername(type='text', value='#{winner.username}', name='Username')
+		p W:
+			input#inputWins(type='number', value='#{winner.wins}', name='wins')
+		p L:
+			input#inputLosses(type='number', value='#{winner.losses}', name='losses')
+		p
+			input(type='hidden', value='PUT', name='_method')
+		p
+			button#btnSubmit(type='submit').
+				Update

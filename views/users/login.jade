@@ -1,0 +1,13 @@
+extends ../layout
+
+block content
+	h1.
+		#{title}
+	form#formLogin(action='/users/login', method='post', name='login')
+		p Username:
+			input#inputUsername(type='text', value='Username', name='username')
+		p Password:
+			input#inputPassword(type='text', value='Password', name='password')
+		p
+			button#btnSubmit(type='submit').
+				Login
