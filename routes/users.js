@@ -5,15 +5,15 @@ var express = require('express'),
 /* GET users listing. */
 router.route('/')
 	.get(function(req, res, next) {
-		mongoose.model('Winner').find({}, function(err, winners) {
+		mongoose.model('Player').find({}, function(err, players) {
 			if(err) {
 				return console.error(err);
 			} else {
 				res.format({
 					html: function(){
 						res.render('users/login', {
-							title: 'All the Winners',
-							'winners': winners
+							title: 'All the Players',
+							'players': players
 						});
 					},
 					json: function(){
@@ -23,10 +23,10 @@ router.route('/')
 			}
 		});
 	})
-	//POST a new winner
+	//POST a new player
 	.post(function(req, res) {
 		//get values from the POST request
-		var userToAdd = mongoose.model('Winner')({
+		var userToAdd = mongoose.model('Player')({
 			username: req.body.username,
 			password: req.body.password,
 			wins: req.body.wins,
@@ -38,25 +38,25 @@ router.route('/')
 				throw err;
 			} 
 
-			mongoose.model('Winner').getAuthenticated(this.username, this.password, function(err, user, reason) {
+			mongoose.model('Player').getAuthenticated(this.username, this.password, function(err, user, reason) {
 				if(err) {
 					throw err;
 				}
 
 				if(user) {
-					console.log('POST creating new winner: ' + winner);
+					console.log('POST creating new player: ' + player);
 					res.format({
 						html: function(){
 							res.location('users');
-							res.redirect('../winners');
+							res.redirect('../players');
 						},
 						json: function(){
-							res.json(winner);
+							res.json(player);
 						}
 					});
 				}
 
-				var reasons = User.failedLogin;
+				var reasons = userToAdd.failedLogin;
 				switch (reason) {
 					case reasons.NOT_FOUND:
 					case reasons.PASSWORD_INCORRECT:
@@ -69,7 +69,7 @@ router.route('/')
 	});
 
 router.get('/new', function(req, res) {
-	res.render('users/new', { title: 'add a new winner' });
+	res.render('users/new', { title: 'add a new player' });
 });
 
 router.get('/login', function(req, res) {
@@ -77,7 +77,7 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/login', function(req, res) {
-	mongoose.model('Winner').getAuthenticated(req.body.username, req.body.password, function(err, user, reason) {
+	mongoose.model('Player').getAuthenticated(req.body.username, req.body.password, function(err, user, reason) {
 		if (err) {
 			return console.error(err);
 		}
@@ -88,7 +88,7 @@ router.post('/login', function(req, res) {
 			//redirect to go here
 		}
 
-		var reasons = mongoose.model('Winner').failedLogin;
+		var reasons = mongoose.model('Player').failedLogin;
 		switch (reason) {
 			case reasons.NOT_FOUND:
 			case reasons.PASSWORD_INCORRECT:

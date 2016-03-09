@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
     MAX_LOGIN_ATTEMPTS = 5,
     LOCK_TIME = 2 * 60 * 60 * 1000;
 
-var winnerSchema = new mongoose.Schema({
+var playerSchema = new mongoose.Schema({
 	username: { type: String, required: true, index: {unique: true} },
 	password: { type: String, required: true },
 	wins: Number,
@@ -13,7 +13,7 @@ var winnerSchema = new mongoose.Schema({
 	lockUntil: { type: Number }
 });
 
-winnerSchema.pre('save', function(next) {
+playerSchema.pre('save', function(next) {
 	var user = this;
 
 	if(!user.isModified('password')) {
@@ -36,11 +36,11 @@ winnerSchema.pre('save', function(next) {
 	});
 });
 
-winnerSchema.virtual('isLocked').get(function(){
+playerSchema.virtual('isLocked').get(function(){
 	return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-winnerSchema.methods.comparePassword = function(candidatePassword, callback) {
+playerSchema.methods.comparePassword = function(candidatePassword, callback) {
 	bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
 		if(err) {
 			return callback(err);
@@ -50,7 +50,7 @@ winnerSchema.methods.comparePassword = function(candidatePassword, callback) {
 	});
 };
 
-winnerSchema.methods.incLoginAttempts = function(callback) {
+playerSchema.methods.incLoginAttempts = function(callback) {
 	if (this.lockUntil && this.lockUntil < Date.now()) {
 		return this.update({
 			$set: {loginAttempts: 1},
@@ -71,13 +71,13 @@ winnerSchema.methods.incLoginAttempts = function(callback) {
 	return this.update(updates, callback);
 };
 
-var reasons = winnerSchema.statics.failedLogin = {
+var reasons = playerSchema.statics.failedLogin = {
 	NOT_FOUND: 0,
 	PASSWORD_INCORRECT: 1,
 	MAX_ATTEMPTS: 2
 };
 
-winnerSchema.statics.getAuthenticated = function(username, password, callback) {
+playerSchema.statics.getAuthenticated = function(username, password, callback) {
 	this.findOne({ username: username }, function(err, user) {
 		if (err) {
 			return callback(err);
@@ -132,4 +132,4 @@ winnerSchema.statics.getAuthenticated = function(username, password, callback) {
 	});
 };
 
-mongoose.model('Winner', winnerSchema);
+mongoose.model('Player', playerSchema);

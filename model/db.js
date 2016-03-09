@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
 //set up database connection
-var url = 'mongodb://localhost:27017/winnersdb';
+var url = 'mongodb://TonyAmendola3:AAninja345@ds053818.mlab.com:53818/playersdb';
 
 mongoose.connect(url);

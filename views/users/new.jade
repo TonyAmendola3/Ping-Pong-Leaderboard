@@ -3,7 +3,7 @@ extends ../layout
 block content
 	h1.
 		#{title}
-	form#formAddWinner(name='addwinner', method='post', action='/users') 
+	form#formAddPlayer(name='addplayer', method='post', action='/users') 
 		p Username:
 			input#inputUsername(type='text', placeholder='ex. Anthony Zeus Amendola', name='username')
 		p Password:
