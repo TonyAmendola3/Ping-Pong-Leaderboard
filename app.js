@@ -4,13 +4,14 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-var winners = require('./routes/players');
+var players = require('./routes/players');
 
 var db = require('./model/db');
-var winner = require('./model/players');
+var player = require('./model/players');
 
 var app = express();
 
@@ -24,17 +25,26 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({secret: 'pingpongleaderboardsecret'}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
 app.use('/players', players);
 
-// catch 404 and forward to error handler
+// catch 404 and session errors forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+  if(req.session.error) {
+      var err = req.session.error;
+      delete req.session.error;
+  } else {
+      var err = new Error('Not Found');
+      err.status = 404;
+  }
+                                                                                                                                                                                                                      
+  res.locals.message = '';                                                                                                                                                                       
+  if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
+  next();
 });
 
 // error handlers

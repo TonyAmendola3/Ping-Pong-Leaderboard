@@ -1,20 +1,21 @@
 extends ../layout
 
 block content
-	h1.
-		#{title}
-	ul
-		- each player, i in players
-			li
-				= winner.username
-				form(action='/players/#{player._id}/edit', method='post', enctype='application/x-www-form-urlencoded')
-					input(type='hidden',value='DELETE',name='_method')
-					button(type='submit').
-						Delete
-				p
-					a(href='/players/#{player._id}/edit') Edit
-				p
-					a(href='/players/#{player._id}') Show
+    h1.
+        #{title}
+    ul
+        - each player, i in players
+            li
+                p
+                    =player.username
+                p wins: 
+                    =player.wins
+                p losses: 
+                    =player.losses
+                p
+                    a(href='/players/#{player.username}/edit') Edit
+                p
+                    a(href='/players/#{player.username}') Show
 
-	p
-		a(href='/players/new') Add new
+    p
+        a(href='/players/new') Add new

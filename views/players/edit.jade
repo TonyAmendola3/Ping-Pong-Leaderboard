@@ -2,8 +2,8 @@ extends ../layout
 
 block content
 	h1.
-		Player ID #{player._id}
-	form(action='/players/#{player._id}/edit', method='post', name='updateplayer', enctype='application/x-www-form-urlencoded')
+		Player ID #{player.username}
+	form(action='/players/#{player.username}/edit', method='post', name='updateplayer', enctype='application/x-www-form-urlencoded')
 		p Username:
 			input#inputUsername(type='text', value='#{player.username}', name='Username')
 		p W:

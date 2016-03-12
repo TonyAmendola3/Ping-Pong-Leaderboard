@@ -40,13 +40,13 @@ router.route('/')
 	});
 
 //route middleware to validate :id
-router.param('id', function(req, res, next, id) {
-	if (id) {
+router.param('username', function(req, res, next, username) {
+	if (username) {
 		//find ID in the DB
-		mongoose.model('Player').findById(id, function(err, players) {
+		mongoose.model('Player').find({username: username}, function(err, players) {
 			//respond with 404 if its not found
 			if(err){
-				console.log(id + ' was not found');
+				console.log(username + ' was not found');
 				res.status(404);
 				var err = new Error('not found');
 				err.status = 404;
@@ -61,118 +61,92 @@ router.param('id', function(req, res, next, id) {
 			} else {
 				//if its found we continue
 				//once validation is done save the new item in the req
-				req.id = id;
+				req.username = username;
 				next();
 			}
 		});
 	}
 });
 
-router.route('/:id')
+router.route('/:username')
 	.get(function(req, res) {
-		mongoose.model('Player').findById(req.id, function (err, player) {
+		mongoose.model('Player').find({username: req.username}, function (err, player) {
 			if(err) {
 				console.log('GET error: there was a problem retrieving: ' + err);
 			} else {
-				console.log('GET retrieving ID: ' + player._id);
+				console.log('GET retrieving ID: ' + player[0].username);
 
 				res.format({
 					html: function() {
 						res.render('players/show', {
-							'player': player
+							'player': player[0]
 						});
 					},
 					json: function(){
-						res.json(player);
+						res.json(player[0]);
 					}
 				});
 			}
 		});
 	});
 
-router.get('/:id/edit', function(req, res) {
-	//search for a player in mongo
-	mongoose.model('Player').findById(req.id, function(err, player) {
-		if(err) {
-			console.log('GET error: there was a problem retrieving: ' + err);
-		} else {
-			//return the player
-			console.log('GET retrieving id: ' + player.username);
+router.get('/:username/edit', function(req, res) {
+    //search for a player in mongo
+    mongoose.model('Player').find({username: req.username}, function(err, player) {
+        if(req.session.user.username === player[0].username){
+            if(err) {
+                console.log('GET error: there was a problem retrieving: ' + err);
+            } else {
+                //return the player
+                console.log('GET retrieving id: ' + player[0].username);
 
-			res.format({
-				//html that will render the edit.jade template
-				html: function() {
-					res.render('players/edit', {
-						title: 'Player' + player.username,
-						'player': player
-					});
-				},
-				json: function() {
-					res.json(player);
-				}
-			});
-		}
-	});
+                res.format({
+                    //html that will render the edit.jade template
+                    html: function() {
+                        res.render('players/edit', {
+                            title: 'Player' + player[0].username,
+                            'player': player[0]
+                        });
+                    },
+                    json: function() {
+                        res.json(player[0]);
+                    }
+                });
+            }
+        } else {
+            console.log(err);
+            res.redirect('/players');
+        }
+    });
 });
 
-router.put('/:id/edit', function(req, res) {
-	var username = req.body.username;
-	var password = req.body.password;
-	var wins = req.body.wins;
-	var losses = req.body.losses;
+router.put('/:username/edit', function(req, res) {
+    var newUsername = req.body.username;
+    var newWins = req.body.wins;
+    var newLosses = req.body.losses;
 
-	//find doc by ID
-	mongoose.model('Player').findById(req.id, function(err, player) {
-		//update the player
-		player.update({
-			username: username,
-			password: password,
-			wins: wins,
-			losses: losses
-		}, function(err, playerID) {
-			if(err) {
-				res.send('there was a problem updating the info in the db: ' + err);
-			} else {
-				res.format({
-					html: function(){
-						res.redirect('/players/' + player._id);
-					}, 
-					json: function(){
-						res.json(player);
-					}
-				});
-			}
-		});
-	});
-});
-
-//delete a player ... maybe they quit maybe they got canned .. who knows
-router.delete('/:id/edit', function(req, res){
-	mongoose.model('Player').findById(req.id, function(err, player){
-		if(err){
-			return console.error(err);
-		} else {
-			//remove the player from mongo
-			player.remove(function(err, player){
-				if(err){
-					return console.error(err);
-				} else {
-					console.log('delete removing ID: ' + player.username);
-
-					res.format({
-						html: function(){
-							res.redirect('/players');
-						},
-						json: function(){
-							res.json({message: 'deleted',
-												item: player
-							});
-						}
-					});
-				}
-			});
-		}
-	});
+    //find doc by ID
+    mongoose.model('Player').find({username: req.username}, function(err, player) {
+        //update the player
+        player[0].update({
+            username: newUsername,
+            wins: newWins,
+            losses: newLosses
+        }, function(err, playerUsername) {
+            if(err) {
+                res.send('there was a problem updating the info in the db: ' + err);
+            } else {
+                res.format({
+                    html: function(){
+                        res.redirect('/players/' + player[0].username);
+                    }, 
+                    json: function(){
+                        res.json(player[0]);
+                    }
+                });
+            }
+        });
+    });
 });
 
 module.exports = router;

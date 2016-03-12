@@ -56,7 +56,7 @@ router.route('/')
 					});
 				}
 
-				var reasons = userToAdd.failedLogin;
+				var reasons = mongoose.model('Player').failedLogin;
 				switch (reason) {
 					case reasons.NOT_FOUND:
 					case reasons.PASSWORD_INCORRECT:
@@ -77,26 +77,23 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/login', function(req, res) {
-	mongoose.model('Player').getAuthenticated(req.body.username, req.body.password, function(err, user, reason) {
-		if (err) {
-			return console.error(err);
-		}
-
+	mongoose.model('Player').getAuthenticated(req.body.username, req.body.password, function(err, user) {
 		if (user) {
-			console.log('login success');
-			return;
-			//redirect to go here
-		}
-
-		var reasons = mongoose.model('Player').failedLogin;
-		switch (reason) {
-			case reasons.NOT_FOUND:
-			case reasons.PASSWORD_INCORRECT:
-				break;
-			case reasons.MAX_ATTEMPTS:
-				break;
-		}
+			req.session.regenerate(function() {
+                req.session.user = user;
+                res.redirect('/players');
+            });
+		} else {
+            req.session.error = 'Authentication failed Please check your username and password and try again';
+            res.redirect('/users/login');
+        }
 	});
+});
+
+router.get('/logout', function(req, res) {
+    req.session.destroy(function() {
+        res.redirect('players');
+    });
 });
 
 module.exports = router;
